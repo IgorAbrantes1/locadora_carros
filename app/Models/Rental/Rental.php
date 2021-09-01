@@ -14,6 +14,7 @@ class Rental extends Model
     protected $fillable = [];
 
     protected $hidden = [
+        'id',
         'created_at',
         'updated_at',
         'deleted_at'

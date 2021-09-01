@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CarModel;
 
 use App\Http\Controllers\Controller;
 use App\Models\CarModel\CarModel;
+use App\Repositories\CarModel\CarModelRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,11 +15,11 @@ class CarModelController extends Controller
     /**
      * @var CarModel
      */
-    private CarModel $carModel;
+    private CarModel $model;
 
     public function __construct(CarModel $carModel)
     {
-        $this->carModel = $carModel;
+        $this->model = $carModel;
     }
 
     /**
@@ -29,29 +30,23 @@ class CarModelController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $repository = new CarModelRepository($this->model);
+
         if ($request->has('attributes_brand')) {
-            $attributes_brand = $request->get('attributes_brand');
-            $carModels = $this->carModel->with('brand:id,' . $attributes_brand);
+            $attributes_brand = 'brand:id,' . $request->get('attributes_brand');
+            $repository->selectAttributesRelatedRecords($attributes_brand);
         } else {
-            $carModels = $this->carModel->with('brand');
+            $repository->selectAttributesRelatedRecords('brand');
         }
 
         if ($request->has('filter')) {
-            $filters = explode(';', $request->get('filter'));
-
-            foreach ($filters as $key => $filter) {
-                $data = explode(':', $filter);
-                $carModels = $carModels->where($data[0], $data[1], $data[2]);
-            }
+            $repository->filter($request->get('filter'));
         }
 
         if ($request->has('attributes')) {
-            $attributes = $request->get('attributes');
-            $carModels = $carModels->selectRaw('id,brand_id,' . $attributes)->get();
-        } else {
-            $carModels = $carModels->get();
+            $repository->selectAttributes($request->get('attributes'));
         }
-        return response()->json(['carModels' => $carModels, 'status' => Response::HTTP_OK], Response::HTTP_OK);
+        return response()->json(['carModels' => $repository->getResult(), 'status' => Response::HTTP_OK], Response::HTTP_OK);
     }
 
     /**
@@ -72,13 +67,13 @@ class CarModelController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $carModel = $request->validate($this->carModel->rules());
+        $carModel = $request->validate($this->model->rules());
 
         $image = $request->file('image');
         $imageUrn = $image->store('carModels/images', config('filesystems.default'));
         $carModel['image'] = $imageUrn;
 
-        $carModel = $this->carModel->create($carModel);
+        $carModel = $this->model->create($carModel);
 
         return response()->json(['brand' => $carModel, 'status' => Response::HTTP_CREATED, 'message' => 'Car model created successfully!'], Response::HTTP_CREATED);
     }
@@ -91,7 +86,7 @@ class CarModelController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $carModel = $this->carModel->with('brand')->find($id);
+        $carModel = $this->model->with('brand')->find($id);
         if ($carModel === null) {
             return response()->json(['error' => ['carModel' => 'This car model does not exist.'], 'status' => Response::HTTP_NOT_FOUND], Response::HTTP_NOT_FOUND);
         }
@@ -118,7 +113,7 @@ class CarModelController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        $carModel = $this->carModel->find($id);
+        $carModel = $this->model->find($id);
         if ($carModel === null) {
             return response()->json(['error' => ['carModel' => 'This car model does not exist.'], 'status' => Response::HTTP_NOT_FOUND], Response::HTTP_NOT_FOUND);
         }
@@ -157,7 +152,7 @@ class CarModelController extends Controller
      */
     public function destroy(int $id): JsonResponse
     {
-        $carModel = $this->carModel->find($id);
+        $carModel = $this->model->find($id);
         if ($carModel === null) {
             return response()->json(['error' => ['carModel' => 'This car model does not exist.'], 'status' => Response::HTTP_NOT_FOUND], Response::HTTP_NOT_FOUND);
         }
