@@ -21,7 +21,6 @@ class BrandFactory extends Factory
      */
     public function definition(): array
     {
-
         return [
             'name' => $this->faker->unique()->lastName,
             'image' => $this->faker->image('public/storage/brands/images', 640, 480, null, false)

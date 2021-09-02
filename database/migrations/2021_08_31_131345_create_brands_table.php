@@ -16,7 +16,7 @@ class CreateBrandsTable extends Migration
         Schema::create('brands', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('image')->comment('Brand logo');
+            $table->string('image')->comment('Brand logo')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

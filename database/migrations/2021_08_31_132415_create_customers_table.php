@@ -17,6 +17,16 @@ class CreateCustomersTable extends Migration
             $table->id();
 
             $table->string('name');
+            $table->string('cpf', 11)->unique();
+            $table->string('rg', 9)->unique();
+            $table->string('ddd', 2);
+            $table->string('phone', 9);
+            $table->string('country');
+            $table->string('state', 2);
+            $table->string('city');
+            $table->string('street');
+            $table->string('number');
+            $table->string('postal_code');
 
             $table->timestamps();
         });

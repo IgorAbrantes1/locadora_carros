@@ -12,7 +12,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class BrandController extends Controller
 {
+    /**
+     * @var Brand
+     */
     private Brand $model;
+
+    /**
+     * @var BrandRepository
+     */
+    private BrandRepository $repository;
 
     /**
      * @param Brand $model
@@ -20,6 +28,7 @@ class BrandController extends Controller
     public function __construct(Brand $model)
     {
         $this->model = $model;
+        $this->repository = new BrandRepository($this->model);
     }
 
     /**
@@ -30,23 +39,16 @@ class BrandController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $repository = new BrandRepository($this->model);
-
-        if ($request->has('attributes_carModels')) {
-            $attributes_carModels = 'carModels:id,brand_id,' . $request->get('attributes_carModels');
-            $repository->selectAttributesRelatedRecords($attributes_carModels);
-        } else {
-            $repository->selectAttributesRelatedRecords('carModels');
-        }
+        $this->repository->attributesCarModels($request);
 
         if ($request->has('filter')) {
-            $repository->filter($request->get('filter'));
+            $this->repository->filter($request->get('filter'));
         }
 
         if ($request->has('attributes')) {
-            $repository->selectAttributes($request->get('attributes'));
+            $this->repository->selectAttributes('id,' . $request->get('attributes'));
         }
-        return response()->json(['brands' => $repository->getResult(), 'status' => Response::HTTP_OK], Response::HTTP_OK);
+        return response()->json(['brands' => $this->repository->getResult(), 'status' => Response::HTTP_OK], Response::HTTP_OK);
     }
 
     /**

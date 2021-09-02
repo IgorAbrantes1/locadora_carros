@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Brand\Brand;
-use App\Models\CarModel\CarModel;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,8 +13,63 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
-        Brand::factory(20)->create();
-        CarModel::factory(40)->create();
+        $brands = $this->brands();
+        $this->call(BrandSeeder::class, false, ['brands' => $brands]);
+
+        $carModels = [];
+        foreach ($brands as $index => $brand) {
+            $data[$index] = $this->carModels((int)$brand->Value);
+            foreach ($data[$index]->Modelos ?? [] as $index2 => $carModel) {
+                $carModels[] = [
+                    'name' => $carModel->Label ?? null,
+                    'brand_id' => (int)$index + 1
+                ];
+                if ($index2 == 4)
+                    break;
+            }
+        }
+        $this->call(CarModelSeeder::class, false, ['carModels' => $carModels]);
+        $this->call(CarSeeder::class);
+        $this->call(CustomerSeeder::class);
+    }
+
+    private function brands()
+    {
+        return $this->FipeJson("ConsultarMarcas", array(
+            "codigoTabelaReferencia" => 231,
+            "codigoTipoVeiculo" => 1
+        ));
+    }
+
+    private function FipeJson($resource, $data = null)
+    {
+        $url = "http://veiculos.fipe.org.br/api/veiculos";
+
+        $header = [
+            "Cache-Control: no-cache",
+            "Content-Type: application/json",
+            "Host: veiculos.fipe.org.br",
+            "Referer: http://veiculos.fipe.org.br"
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url . "/" . $resource);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        $output = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($output);
+    }
+
+    private function carModels(int $id)
+    {
+        return $this->FipeJson("ConsultarModelos", array(
+            "codigoTabelaReferencia" => 231,
+            "codigoTipoVeiculo" => 1,
+            "codigoMarca" => $id,
+        ));
     }
 }

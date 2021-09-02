@@ -17,7 +17,7 @@ class CreateCarModelsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('brand_id');
             $table->string('name');
-            $table->string('image');
+            $table->string('image')->comment('Car Model image')->nullable();
             $table->integer('num_doors');
             $table->integer('num_seats');
             $table->boolean('air_bag');

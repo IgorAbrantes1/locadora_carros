@@ -17,9 +17,15 @@ class CarModelController extends Controller
      */
     private CarModel $model;
 
+    /**
+     * @var CarModelRepository
+     */
+    private CarModelRepository $repository;
+
     public function __construct(CarModel $carModel)
     {
         $this->model = $carModel;
+        $this->repository = new CarModelRepository($this->model);
     }
 
     /**
@@ -30,23 +36,24 @@ class CarModelController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $repository = new CarModelRepository($this->model);
-
         if ($request->has('attributes_brand')) {
-            $attributes_brand = 'brand:id,' . $request->get('attributes_brand');
-            $repository->selectAttributesRelatedRecords($attributes_brand);
+            $attributes = 'brand:id,' . $request->get('attributes_brand');
+            $this->repository->selectAttributesRelatedRecords($attributes);
         } else {
-            $repository->selectAttributesRelatedRecords('brand');
+            $this->repository->selectAttributesRelatedRecords('brand');
         }
 
+        if($request->has('attributes_cars'))
+            $this->repository-> attributesCars($request);
+
         if ($request->has('filter')) {
-            $repository->filter($request->get('filter'));
+            $this->repository->filter($request->get('filter'));
         }
 
         if ($request->has('attributes')) {
-            $repository->selectAttributes($request->get('attributes'));
+            $this->repository->selectAttributes($request->get('attributes'));
         }
-        return response()->json(['carModels' => $repository->getResult(), 'status' => Response::HTTP_OK], Response::HTTP_OK);
+        return response()->json(['carModels' => $this->repository->getResult(), 'status' => Response::HTTP_OK], Response::HTTP_OK);
     }
 
     /**
