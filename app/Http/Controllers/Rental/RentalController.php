@@ -131,7 +131,6 @@ class RentalController extends Controller
         }
 
         $rental->update($data);
-        $rental->save();
 
         return response()->json(['rental' => $rental->getAttributes(), 'status' => Response::HTTP_OK, 'message' => 'Rental updated successfully!'], Response::HTTP_OK);
     }
@@ -139,11 +138,17 @@ class RentalController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param Rental $rental
+     * @param Integer $id
      * @return JsonResponse
      */
-    public function destroy(Rental $rental): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
-        //
+
+        $rental = $this->model->find($id);
+        if ($rental === null) {
+            return response()->json(['error' => ['carModel' => 'This rental does not exist.'], 'status' => Response::HTTP_NOT_FOUND], Response::HTTP_NOT_FOUND);
+        }
+        $rental->delete();
+        return response()->json(['rental' => $rental, 'status' => Response::HTTP_OK, 'message' => 'Rental removed successfully!'], Response::HTTP_OK);
     }
 }

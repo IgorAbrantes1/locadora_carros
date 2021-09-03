@@ -70,7 +70,7 @@ abstract class AbstractRepository
     public function attributesCustomer(Request $request)
     {
         if ($request->has('attributes_customer')) {
-            $attributes = 'customer:id,customer_id,' . $request->get('attributes_customer');
+            $attributes = 'customer:id,' . $request->get('attributes_customer');
             $this->selectAttributesRelatedRecords($attributes);
         } else {
             $this->selectAttributesRelatedRecords('customer');

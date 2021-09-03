@@ -32,12 +32,12 @@ class Rental extends Model
     ];
 
     protected $casts = [
-        'start_date_period' => 'datetime: d/m/Y H:i:s',
-        'end_date_expected_period' => 'datetime: d/m/Y H:i:s',
-        'end_date_performed_period' => 'datetime: d/m/Y H:i:s',
-        'created_at' => 'datetime: Y-m-d H:i:s',
-        'updated_at' => 'datetime: Y-m-d H:i:s',
-        'deleted_at' => 'datetime: Y-m-d H:i:s'
+        'start_date_period' => 'datetime:d/m/Y H:i:s',
+        'end_date_expected_period' => 'datetime:d/m/Y H:i:s',
+        'end_date_performed_period' => 'datetime:d/m/Y H:i:s',
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
+        'deleted_at' => 'datetime:Y-m-d H:i:s'
     ];
 
     /**
@@ -50,7 +50,7 @@ class Rental extends Model
         return [
             'customer_id' => 'required|exists:customers,id',
             'car_id' => 'required|exists:cars,id',
-            'start_date_period' => 'required|datetime',
+            'start_date_period' => 'required',
             'end_date_expected_period' => 'required',
             'end_date_performed_period' => 'required',
             'daily_value' => 'required',

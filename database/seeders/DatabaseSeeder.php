@@ -29,8 +29,7 @@ class DatabaseSeeder extends Seeder
             }
         }
         $this->call(CarModelSeeder::class, false, ['carModels' => $carModels]);
-        $this->call(CarSeeder::class);
-        $this->call(CustomerSeeder::class);
+        $this->call([CarSeeder::class, CustomerSeeder::class, RentalSeeder::class]);
     }
 
     private function brands()

@@ -1,11 +1,11 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Brand\BrandController;
 use App\Http\Controllers\Car\CarController;
 use App\Http\Controllers\CarModel\CarModelController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Rental\RentalController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,14 +19,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::prefix('v1')->group(function () {
+    Route::middleware('jwt.auth')->group(function () {
+        Route::apiResource('brand', BrandController::class);
+        Route::apiResource('car', CarController::class);
+        Route::apiResource('carModel', CarModelController::class);
+        Route::apiResource('customer', CustomerController::class);
+        Route::apiResource('rental', RentalController::class);
+    });
 
-Route::group(['prefix' => 'v1'], function () {
-    Route::apiResource('brand', BrandController::class);
-    Route::apiResource('car', CarController::class);
-    Route::apiResource('carModel', CarModelController::class);
-    Route::apiResource('customer', CustomerController::class);
-    Route::apiResource('rental', RentalController::class);
+    Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
+        Route::post('login', [AuthController::class, 'login']);
+        Route::post('logout', [AuthController::class, 'logout']);
+        Route::post('refresh', [AuthController::class, 'refresh']);
+        Route::post('me', [AuthController::class, 'me']);
+    });
 });

@@ -43,8 +43,7 @@ class CarModelController extends Controller
             $this->repository->selectAttributesRelatedRecords('brand');
         }
 
-        if($request->has('attributes_cars'))
-            $this->repository-> attributesCars($request);
+        $this->repository->attributesCars($request);
 
         if ($request->has('filter')) {
             $this->repository->filter($request->get('filter'));
