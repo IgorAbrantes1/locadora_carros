@@ -48,17 +48,7 @@ class BrandController extends Controller
         if ($request->has('attributes')) {
             $this->repository->selectAttributes('id,' . $request->get('attributes'));
         }
-        return response()->json(['brands' => $this->repository->getResult(), 'status' => Response::HTTP_OK], Response::HTTP_OK);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return JsonResponse
-     */
-    public function create(): JsonResponse
-    {
-        //
+        return response()->json([$this->repository->getResult()], Response::HTTP_OK);
     }
 
     /**
@@ -77,7 +67,7 @@ class BrandController extends Controller
 
         $brand = $this->model->create($brand);
 
-        return response()->json(['brand' => $brand, 'status' => Response::HTTP_CREATED, 'message' => 'Brand created successfully!'], Response::HTTP_CREATED);
+        return response()->json([$brand, 'message' => 'Brand created successfully!'], Response::HTTP_CREATED);
     }
 
     /**
@@ -90,20 +80,9 @@ class BrandController extends Controller
     {
         $brand = $this->model->with('carModels')->find($id);
         if ($brand === null) {
-            return response()->json(['error' => ['brand' => 'This brand does not exist.'], 'status' => Response::HTTP_NOT_FOUND], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'This brand does not exist.'], Response::HTTP_NOT_FOUND);
         }
-        return response()->json(['brand' => $brand, 'status' => Response::HTTP_OK], Response::HTTP_OK);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param Integer $id
-     * @return JsonResponse
-     */
-    public function edit(int $id): JsonResponse
-    {
-        //
+        return response()->json($brand, Response::HTTP_OK);
     }
 
     /**
@@ -117,7 +96,7 @@ class BrandController extends Controller
     {
         $brand = $this->model->find($id);
         if ($brand === null) {
-            return response()->json(['error' => ['brand' => 'This brand does not exist.'], 'status' => Response::HTTP_NOT_FOUND], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'This brand does not exist.'], Response::HTTP_NOT_FOUND);
         }
 
         if ($request->method() === 'PATCH') {
@@ -145,7 +124,7 @@ class BrandController extends Controller
         $brand->update($data);
         $brand->save();
 
-        return response()->json(['brand' => $brand->getAttributes(), 'status' => Response::HTTP_OK, 'message' => 'Brand updated successfully!'], Response::HTTP_OK);
+        return response()->json([$brand->getAttributes(), 'message' => 'Brand updated successfully!'], Response::HTTP_OK);
     }
 
     /**
@@ -158,10 +137,10 @@ class BrandController extends Controller
     {
         $brand = $this->model->find($id);
         if ($brand === null) {
-            return response()->json(['error' => ['brand' => 'This brand does not exist.'], 'status' => Response::HTTP_NOT_FOUND], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'This brand does not exist.'], Response::HTTP_NOT_FOUND);
         }
         $brand->delete();
         Storage::disk('public')->delete($brand->image);
-        return response()->json(['brand' => $brand, 'status' => Response::HTTP_OK, 'message' => 'Brand removed successfully!'], Response::HTTP_OK);
+        return response()->json(['message' => 'Brand removed successfully!'], Response::HTTP_OK);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -27,15 +28,31 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        if (!auth()->check()) {
-            $credentials = $request->validated();
+        $credentials = $request->validated();
 
-            if (!$token = auth()->attempt($credentials)) {
-                return response()->json(['error' => Response::HTTP_FORBIDDEN], Response::HTTP_FORBIDDEN);
-            }
-            return $this->respondWithToken($token);
+        if (auth()->user()) {
+            return $this->refresh();
         }
-        return response()->json(['error' => Response::HTTP_NOT_ACCEPTABLE], Response::HTTP_NOT_ACCEPTABLE);
+
+        if (!$token = auth()->attempt($credentials)) {
+            return response()->json(['error' => Response::HTTP_FORBIDDEN], Response::HTTP_FORBIDDEN);
+        }
+
+        $user = User::all()->where('email', '=', $credentials['email'])->first();
+        auth('api')->login($user);
+        return $this->respondWithToken($token);
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return JsonResponse
+     */
+    public function refresh(): JsonResponse
+    {
+        if ($token = auth('api')->refresh(true, true))
+            return $this->respondWithToken($token);
+        return response()->json(['error' => Response::HTTP_FORBIDDEN], Response::HTTP_FORBIDDEN);
     }
 
     /**
@@ -48,8 +65,8 @@ class AuthController extends Controller
     protected function respondWithToken(string $token): JsonResponse
     {
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
+            'token' => $token,
+            'token_type' => 'Bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
         ], Response::HTTP_OK);
     }
@@ -61,19 +78,9 @@ class AuthController extends Controller
      */
     public function logout(): JsonResponse
     {
-        auth()->logout();
+        auth('api')->logout();
 
         return response()->json(['message' => 'Successfully logged out']);
-    }
-
-    /**
-     * Refresh a token.
-     *
-     * @return JsonResponse
-     */
-    public function refresh(): JsonResponse
-    {
-        return $this->respondWithToken(auth('api')->refresh(true, true));
     }
 
     /**
@@ -83,6 +90,10 @@ class AuthController extends Controller
      */
     public function me(): JsonResponse
     {
-        return response()->json(['user' => auth()->user(), 'code' => Response::HTTP_OK], Response::HTTP_OK);
+        return response()->json([
+            'status' => 'success',
+            'data' => auth()->user(),
+            'code' => Response::HTTP_OK
+        ], Response::HTTP_OK);
     }
 }

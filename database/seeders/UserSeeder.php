@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
             'name' => 'Igor Abrantes',
             'email' => 'igor@email.com',
             'email_verified_at' => now(),
-            'password' => Hash::make(env('DEFAULT_PASSWORD', 'secret')),
+            'password' => env('DEFAULT_PASSWORD', 'secret'),
             'remember_token' => Str::random(10),
         ]);
     }

@@ -23,7 +23,7 @@ class BrandFactory extends Factory
     {
         return [
             'name' => $this->faker->unique()->lastName,
-            'image' => $this->faker->image('public/storage/brands/images', 640, 480, null, false)
+            'image' => 'brands/images/ford.png'
         ];
     }
 }
