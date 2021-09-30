@@ -29,7 +29,7 @@ abstract class AbstractRepository
 
     public function getResult()
     {
-        return $this->model->paginate(10);
+        return $this->model->paginate(500);
     }
 
     public function attributesCarModels(Request $request)

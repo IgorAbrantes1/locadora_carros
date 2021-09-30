@@ -15,8 +15,7 @@
                             </input-component>
                         </div>
                         <div class="col-8">
-                            <input-component id="inputName" idHelp="inputNameHelp"
-                                             optional
+                            <input-component id="inputName" idHelp="inputNameHelp" optional
                                              textHelp="Optional. Enter the brand name." title="Brand name">
                                 <input id="inputName" aria-describedby="inputNameHelp"
                                        class="form-control"
@@ -32,15 +31,14 @@
                 <!-- Search Card -->
 
                 <!-- Brands Listing Card -->
-                <card-component classes="table-responsive" title="Brands List">
+                <card-component classes="" title="Brands List">
                     <template v-slot:body="">
-                        <table-component></table-component>
+                        <table-component :data="brands" :titles="titles"></table-component>
                     </template>
 
                     <template v-slot:footer="">
                         <button class="btn btn-primary btn-sm float-end" data-bs-target="#modalBrand"
-                                data-bs-toggle="modal"
-                                type="button">Add
+                                data-bs-toggle="modal" type="button">Add
                         </button>
                     </template>
                 </card-component>
@@ -49,7 +47,6 @@
         </div>
 
         <modal-component id="modalBrand" modalTitle="Add Brand">
-
             <template v-slot:alert="">
                 <alert-component v-if="status === true" id="alert" :messages="messages"
                                  type="success"></alert-component>
@@ -78,7 +75,7 @@
 
             <template v-slot:footer="">
                 <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
-                <button class="btn btn-primary" type="button" @click="save()">Save changes</button>
+                <button class="btn btn-primary" type="button" @click="save()">Save</button>
             </template>
         </modal-component>
     </div>
@@ -91,13 +88,16 @@ export default {
             name: '',
             image: [],
             status: Boolean,
-            messages: []
+            messages: [],
+            brands: [],
+            titles: ['id', 'name', 'image', 'created_at', 'updated_at', 'deleted_at']
         };
     },
 
     props: {
-        'page': String,
-        'route_store_brand': String
+        page: String,
+        route_store_brand: String,
+        route_index_brand: String,
     },
 
     computed: {
@@ -114,6 +114,23 @@ export default {
     },
 
     methods: {
+        loadList() {
+            let settings = {
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: this.token
+                }
+            };
+
+            axios.get(this.route_index_brand, settings)
+                .then(response => {
+                    this.brands = response.data;
+                })
+                .catch(errors => {
+                    console.log(errors);
+                });
+        },
+
         loadImage(e) {
             this.image = e.target.files;
         },
@@ -127,24 +144,22 @@ export default {
                     image: ['The image field is required.']
                 };
                 return;
-            } else {
-                if (this.name === '') {
-                    this.status = false;
-                    this.messages = [];
-                    this.messages = {
-                        name: ['The name field is required.']
-                    };
-                    return;
-                } else {
-                    if (this.image.length === 0) {
-                        this.status = false;
-                        this.messages = [];
-                        this.messages = {
-                            image: ['The image field is required.']
-                        };
-                        return;
-                    }
-                }
+            }
+            if (this.name === '') {
+                this.status = false;
+                this.messages = [];
+                this.messages = {
+                    name: ['The name field is required.']
+                };
+                return;
+            }
+            if (this.image.length === 0) {
+                this.status = false;
+                this.messages = [];
+                this.messages = {
+                    image: ['The image field is required.']
+                };
+                return;
             }
 
             let formData = new FormData();
@@ -154,10 +169,10 @@ export default {
             let settings = {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Accept': 'application/json',
-                    'Authorization': this.token
+                    Accept: 'application/json',
+                    Authorization: this.token
                 }
-            }
+            };
 
             axios.post(this.route_store_brand, formData, settings)
                 .then(response => {
@@ -169,6 +184,7 @@ export default {
                     setTimeout(function () {
                         $('#alert').css('display', 'none');
                     }, 5000);
+                    this.loadList();
                 })
                 .catch(errors => {
                     this.messages = [];
@@ -176,6 +192,10 @@ export default {
                     this.messages = errors.response.data.errors;
                 });
         }
-    }
-}
+    },
+
+    mounted() {
+        this.loadList();
+    },
+};
 </script>

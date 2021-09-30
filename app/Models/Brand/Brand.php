@@ -19,11 +19,7 @@ class Brand extends Model
         'image'
     ];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
+    protected $hidden = [];
 
     protected $casts = [
         'created_at' => 'datetime:d/m/Y H:i:s',

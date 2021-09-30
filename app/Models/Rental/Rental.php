@@ -25,11 +25,7 @@ class Rental extends Model
         'km_final',
     ];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
+    protected $hidden = [];
 
     protected $casts = [
         'start_date_period' => 'datetime:d/m/Y H:i:s',

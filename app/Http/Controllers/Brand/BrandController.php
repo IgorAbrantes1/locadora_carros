@@ -48,7 +48,8 @@ class BrandController extends Controller
         if ($request->has('attributes')) {
             $this->repository->selectAttributes('id,' . $request->get('attributes'));
         }
-        return response()->json([$this->repository->getResult()], Response::HTTP_OK);
+
+        return response()->json($this->repository->getResult(), Response::HTTP_OK);
     }
 
     /**

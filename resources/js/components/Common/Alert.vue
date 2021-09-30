@@ -2,7 +2,8 @@
     <div>
         <div :class="style" class="alert" role="alert">
             <ul v-for="(message, key) in messages" :key="key" class="my-0 py-0">
-                <li>{{ message[0] }}</li>
+                <li v-if="type === 'success'">{{ message }}</li>
+                <li v-if="type === 'danger'">{{ message[0] }}</li>
             </ul>
         </div>
     </div>
@@ -11,16 +12,16 @@
 <script>
 export default {
     props: {
-        'type': String,
-        'messages': []
+        type: String,
+        messages: [],
     },
 
     computed: {
         style() {
-            return 'alert alert-' + this.type;
-        }
-    }
-}
+            return "alert alert-" + this.type;
+        },
+    },
+};
 </script>
 
 <style scoped>
