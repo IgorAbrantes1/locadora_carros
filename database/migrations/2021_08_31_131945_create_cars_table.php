@@ -15,16 +15,12 @@ class CreateCarsTable extends Migration
     {
         Schema::create('cars', function (Blueprint $table) {
             $table->id();
-
-            $table->unsignedBigInteger('car_model_id');
-
             $table->string('license_plate', 7)->unique();
             $table->boolean('available');
             $table->integer('km');
-
+            $table->foreignId('car_model_id')->references('id')->on('car_models');
             $table->timestamps();
-
-            $table->foreign('car_model_id')->references('id')->on('car_models');
+            $table->softDeletes();
         });
     }
 

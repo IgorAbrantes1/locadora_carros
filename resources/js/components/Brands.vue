@@ -31,7 +31,7 @@
                 <!-- Search Card -->
 
                 <!-- Brands Listing Card -->
-                <card-component classes="" title="Brands List">
+                <card-component classes="table-responsive-xxl" title="Brands List">
                     <template v-slot:body="">
                         <table-component :data="brands" :titles="titles"></table-component>
                     </template>
@@ -90,7 +90,13 @@ export default {
             status: Boolean,
             messages: [],
             brands: [],
-            titles: ['id', 'name', 'image', 'created_at', 'updated_at', 'deleted_at']
+            titles: {
+                id: {title: 'ID', type: 'text'},
+                name:  {title: 'Name', type: 'text'},
+                image:  {title: 'Image', type: 'image'},
+                created_at:  {title: 'Creation date', type: 'date'},
+                updated_at:  {title: 'Update date', type: 'date'}
+            }
         };
     },
 

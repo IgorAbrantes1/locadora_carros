@@ -15,15 +15,15 @@ class CreateCarModelsTable extends Migration
     {
         Schema::create('car_models', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('brand_id');
             $table->string('name');
             $table->string('image')->comment('Car Model image')->nullable();
             $table->integer('num_doors');
             $table->integer('num_seats');
             $table->boolean('air_bag');
             $table->boolean('abs');
+            $table->foreignId('brand_id')->references('id')->on('brands');
             $table->timestamps();
-            $table->foreign('brand_id')->references('id')->on('brands');
+            $table->softDeletes();
         });
     }
 
