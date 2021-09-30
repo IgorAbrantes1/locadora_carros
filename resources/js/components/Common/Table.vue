@@ -62,15 +62,13 @@ export default {
             let fields = Object.keys(this.titles);
             let filteredData = [];
 
-            if (this.data.data) {
-                this.data.data.map((item, key) => {
-                    let filteredItem = {};
-                    fields.forEach(field => {
-                        filteredItem[field] = item[field];
-                    });
-                    filteredData.push(filteredItem);
+            this.data.map((item, key) => {
+                let filteredItem = {};
+                fields.forEach(field => {
+                    filteredItem[field] = item[field];
                 });
-            }
+                filteredData.push(filteredItem);
+            });
             return filteredData;
         }
     }
