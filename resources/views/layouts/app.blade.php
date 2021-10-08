@@ -4,19 +4,28 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <!-- CSRF Token -->
+        {{-- CSRF Token --}}
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Scripts -->
+        {{-- Scripts --}}
+        @if(config('app.env') === 'production')
+            @if(config('app.url') !== 'http://localhost' && \Illuminate\Support\Str::contains(config('app.url'), 'https://'))
+                <script type="text/javascript" async>
+                    if (location.protocol !== 'https:') {
+                        location.replace(`https:${location.href.substring(location.protocol.length)}`);
+                    }
+                </script>
+            @endif
+        @endif
         <script src="{{ asset('js/app.js') }}" defer></script>
 
-        <!-- Fonts -->
+        {{-- Fonts --}}
         <link rel="dns-prefetch" href="//fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
-        <!-- Styles -->
+        {{-- Styles --}}
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     </head>
     <body>

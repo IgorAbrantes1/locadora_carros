@@ -6,11 +6,12 @@ use App\Models\CarModel\CarModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use JetBrains\PhpStorm\ArrayShape;
 
 class Brand extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'brands';
 
@@ -19,11 +20,7 @@ class Brand extends Model
         'image'
     ];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
+    protected $hidden = [];
 
     protected $casts = [
         'created_at' => 'datetime:d/m/Y H:i:s',

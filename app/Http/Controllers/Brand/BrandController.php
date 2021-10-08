@@ -7,7 +7,9 @@ use App\Models\Brand\Brand;
 use App\Repositories\Brand\BrandRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 use Symfony\Component\HttpFoundation\Response;
 
 class BrandController extends Controller
@@ -48,7 +50,8 @@ class BrandController extends Controller
         if ($request->has('attributes')) {
             $this->repository->selectAttributes('id,' . $request->get('attributes'));
         }
-        return response()->json([$this->repository->getResult()], Response::HTTP_OK);
+
+        return response()->json($this->repository->getResultPaginated(10), Response::HTTP_OK);
     }
 
     /**
@@ -61,11 +64,14 @@ class BrandController extends Controller
     {
         $brand = $request->validate($this->model->rules(), $this->model->feedback());
 
-        $image = $request->file('image');
-        $imageUrn = $image->store('brands/images', config('filesystems.default'));
-        $brand['image'] = $imageUrn;
+        $path = 'brands/images/';
+        $file = $request->file('image');
+        $image = $this->repository->resizeImage($file, $path);
+        $brand['image'] = $image;
 
         $brand = $this->model->create($brand);
+
+        Log::info('Create Brand!', $brand->toArray());
 
         return response()->json([$brand, 'message' => 'Brand created successfully!'], Response::HTTP_CREATED);
     }
@@ -94,7 +100,7 @@ class BrandController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        $brand = $this->model->find($id);
+        $brand = $this->model->all()->find($id);
         if ($brand === null) {
             return response()->json(['error' => 'This brand does not exist.'], Response::HTTP_NOT_FOUND);
         }
@@ -135,12 +141,12 @@ class BrandController extends Controller
      */
     public function destroy(int $id): JsonResponse
     {
-        $brand = $this->model->find($id);
+        $brand = $this->model->all()->find($id);
         if ($brand === null) {
             return response()->json(['error' => 'This brand does not exist.'], Response::HTTP_NOT_FOUND);
         }
-        $brand->delete();
         Storage::disk('public')->delete($brand->image);
+        $brand->delete();
         return response()->json(['message' => 'Brand removed successfully!'], Response::HTTP_OK);
     }
 }

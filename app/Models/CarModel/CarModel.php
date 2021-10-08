@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CarModel extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'car_models';
 
@@ -25,11 +26,7 @@ class CarModel extends Model
         'abs',
     ];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
+    protected $hidden = [];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',

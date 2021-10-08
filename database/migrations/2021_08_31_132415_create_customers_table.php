@@ -15,7 +15,6 @@ class CreateCustomersTable extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-
             $table->string('name');
             $table->string('cpf', 11)->unique();
             $table->string('rg', 9)->unique();
@@ -27,8 +26,8 @@ class CreateCustomersTable extends Migration
             $table->string('street');
             $table->string('number');
             $table->string('postal_code');
-
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

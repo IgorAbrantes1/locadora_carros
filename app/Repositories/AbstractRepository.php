@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 abstract class AbstractRepository
 {
@@ -18,7 +20,7 @@ abstract class AbstractRepository
 
         foreach ($filters as $filter) {
             $data = explode(':', $filter);
-            $this->model = $this->model->where($data[0], $data[1], $data[2]);
+            $this->model = $this->model->all()->where($data[0], $data[1], $data[2]);
         }
     }
 
@@ -29,7 +31,12 @@ abstract class AbstractRepository
 
     public function getResult()
     {
-        return $this->model->paginate(10);
+        return $this->model->get();
+    }
+
+    public function getResultPaginated(int $recordsPerPage)
+    {
+        return $this->model->paginate($recordsPerPage)->onEachSide(1);
     }
 
     public function attributesCarModels(Request $request)
@@ -95,5 +102,26 @@ abstract class AbstractRepository
         } else {
             $this->selectAttributesRelatedRecords('carModel');
         }
+    }
+
+    /**
+     * Resizes an image using the InterventionImage package.
+     *
+     * @param object $file
+     * @param string $path
+     * @return string
+     */
+    public function resizeImage(object $file, string $path = ''): string
+    {
+        $resize = Image::make($file)->resize(300, null, function ($constraint) {
+            $constraint->aspectRatio();
+        })->encode('png');
+
+        $hash = md5($resize->__toString());
+        $image = $path . $hash . date('__Y_m_d_H_i_s') . '.png';
+
+        $save = Storage::disk(config('filesystems.default'))->put($image, $resize->__toString());
+
+        return $image;
     }
 }
