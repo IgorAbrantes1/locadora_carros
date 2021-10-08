@@ -14,6 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        Storage::drive(config('filesystems.default'))->deleteDirectory('brands/images');
+        Storage::drive(config('filesystems.default'))->createDir('brands/images');
+        Storage::drive(config('filesystems.default'))->deleteDirectory('carModels/images');
+        Storage::drive(config('filesystems.default'))->createDir('carModels/images');
+
         $this->call(UserSeeder::class);
 
         $brands = $this->brands();

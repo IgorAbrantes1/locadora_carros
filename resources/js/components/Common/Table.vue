@@ -2,15 +2,17 @@
     <table class="table table-hover table-bordered table-borderless mb-0 align-middle text-center">
         <thead class="table-primary">
             <tr>
-                <th v-for="(value, key) in titles" :key="key" scope="col">
+                <th v-for="(value, key) in titles" :key="key" class="align-middle" scope="col">
                     {{ value.title }}
+                </th>
+                <th v-if="show.visible || update.visible || destroy.visible" class="align-middle" scope="col">Options
                 </th>
             </tr>
         </thead>
-        <tbody class="table-light">
+        <tbody class="table-light align-middle">
             <tr v-for="obj in filteredData" :key="obj.id">
-                <th scope="row">{{ obj.id }}</th>
-                <td v-for="(value, key) in obj" v-if="key !== 'id'" :key="obj.id + ' - ' + key">
+                <th class="align-middle" scope="row">{{ obj.id }}</th>
+                <td v-for="(value, key) in obj" v-if="key !== 'id'" :key="obj.id + ' - ' + key" class="align-middle">
                     <span v-if="titles[key].type === 'image'">
                         <a :href="searchBrand(obj.name)" class="text-decoration-none" target="_blank">
                             <img :alt="obj.name" :src="getImage(value)" class="image"/>
@@ -23,6 +25,23 @@
                         {{ filteredDate(value)[1] }}
                     </span>
                 </td>
+                <td v-if="show.visible || update.visible || destroy.visible" class="align-middle">
+                    <button v-if="show.visible" :data-bs-target="show.dataTarget"
+                            :data-bs-toggle="show.dataToggle"
+                            class="btn btn-outline-primary btn-sm" @click="setStore(obj)">
+                        Show
+                    </button>
+                    <button v-if="update.visible" :data-bs-target="update.dataTarget"
+                            :data-bs-toggle="update.dataToggle"
+                            class="btn btn-outline-warning btn-sm" @click="setStore(obj)">
+                        Update
+                    </button>
+                    <button v-if="destroy.visible" :data-bs-target="destroy.dataTarget"
+                            :data-bs-toggle="destroy.dataToggle"
+                            class="btn btn-outline-danger btn-sm" @click="setStore(obj)">
+                        Delete
+                    </button>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -32,16 +51,28 @@
 export default {
     props: {
         data: {},
-        titles: {}
+        titles: {},
+        show: {
+            visible: Boolean,
+            dataToggle: String,
+            dataTarget: String
+        },
+        update: {
+            visible: Boolean,
+            dataToggle: String,
+            dataTarget: String
+        },
+        destroy: {
+            visible: Boolean,
+            dataToggle: String,
+            dataTarget: String
+        },
     },
 
     methods: {
-        getType(value) {
-            return typeof (value);
-        },
-
         searchBrand(name) {
-            return 'https://google.com/search?q=Car%20Brand%20' + name;
+            const url = 'https://google.com/search?q=Car%20Brand%20';
+            return url + name;
         },
 
         getImage(image) {
@@ -49,12 +80,18 @@ export default {
             return url + image;
         },
 
-        filteredDate(data) {
+        filteredDate(date) {
             let filtered = [];
-            filtered.push(data.substring(0, 10));
-            filtered.push(data.substring(11, data.length));
+            filtered.push(date.substring(0, 10));
+            filtered.push(date.substring(11, date.length));
             return filtered;
-        }
+        },
+
+        setStore(obj) {
+            this.$store.state.transaction.status = Boolean;
+            this.$store.state.transaction.message = [];
+            this.$store.state.item = obj;
+        },
     },
 
     computed: {
@@ -77,6 +114,8 @@ export default {
 
 <style scoped>
 img.image {
-    width: 50px;
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 50%;
 }
 </style>

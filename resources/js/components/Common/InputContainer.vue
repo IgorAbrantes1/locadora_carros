@@ -1,5 +1,5 @@
 <template>
-    <div v-if="type === 'file'" class="mt-2">
+    <div v-if="type === 'file' || type === 'image'" class="mt-2">
         <label :for="id">{{ title }}<span class="text-danger">{{ optional === false ? '*' : '' }}</span></label>
         <slot/>
         <div :id="idHelp" class="form-text">{{ textHelp }}</div>

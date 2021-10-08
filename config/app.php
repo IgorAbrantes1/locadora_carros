@@ -166,6 +166,8 @@ return [
          * Package Service Providers...
          */
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class, // JWT
+        MarvinLabs\DiscordLogger\ServiceProvider::class, // Laravel Discord Logger
+        Intervention\Image\ImageServiceProvider::class, // Image Intervention
 
         /*
          * Application Service Providers...
