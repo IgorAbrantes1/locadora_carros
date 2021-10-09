@@ -38,7 +38,7 @@ class BrandFactory extends Factory
      */
     private function resizeImage(): string
     {
-        $image = 'https://logodownload.org/wp-content/uploads/2014/02/ford-logo-1-1.png';
+        $image = public_path('images/default/') . 'ford.png';
         $resize = Image::make($image)->resize(300, null, function ($constraint) {
             $constraint->aspectRatio();
         })->encode('png');
