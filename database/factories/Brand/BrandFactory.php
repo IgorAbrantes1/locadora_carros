@@ -49,7 +49,7 @@ class BrandFactory extends Factory
      */
     private function resizeImage(string $random): string
     {
-        $image = 'D:\Downloads\imagens_marcas\\' . "$random";
+        $image = 'D:\Downloads\imagens_marcas\\' . $random;
         $resize = Image::make($image)->resize(300, null, function ($constraint) {
             $constraint->aspectRatio();
         })->encode('png');

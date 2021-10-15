@@ -49,7 +49,7 @@
                                 </pagination-component>
                             </div>
                             <div class="col-md-auto float-end">
-                                <button class="btn btn-primary btn-sm float-end" data-bs-target="#modalBrand"
+                                <button class="btn btn-primary btn-sm float-end" data-bs-target="#modalAddBrand"
                                         data-bs-toggle="modal" type="button">
                                     Add
                                 </button>
@@ -60,11 +60,13 @@
             </div>
         </div>
 
-        <modal-component id="modalBrand" modalTitle="Add Brand">
+        <modal-component id="modalAddBrand" modalTitle="Add Brand">
             <template v-slot:alert="">
-                <alert-component v-if="$store.state.transaction.status === true" id="alert" :messages="$store.state.transaction.message"
+                <alert-component v-if="$store.state.transaction.status === true" id="alert"
+                                 :messages="$store.state.transaction.message"
                                  type="success"></alert-component>
-                <alert-component v-if="$store.state.transaction.status === false" :messages="$store.state.transaction.message" type="danger"></alert-component>
+                <alert-component v-if="$store.state.transaction.status === false"
+                                 :messages="$store.state.transaction.message" type="danger"></alert-component>
             </template>
 
             <template v-slot:body="">
@@ -102,7 +104,8 @@
                 <section v-if="$store.state.item.image" class="mb-2">
                     <a :href="searchBrandGoogle($store.state.item.name)"
                        class="text-decoration-none row align-items-center justify-content-center m-0" target="_blank">
-                        <img :alt="$store.state.item.name" :src="getImage($store.state.item.image)" class="image"/>
+                        <img :alt="$store.state.item.name" :src="getImage($store.state.item.image)"
+                             class="image"/>
                     </a>
                 </section>
 
@@ -169,6 +172,44 @@
             </template>
         </modal-component>
 
+        <modal-component id="modalUpdateBrand" modalTitle="Update Brand">
+            <template v-slot:alert="">
+                <alert-component v-if="$store.state.transaction.status === true" id="alert"
+                                 :messages="$store.state.transaction.message"
+                                 type="success"></alert-component>
+                <alert-component v-if="$store.state.transaction.status === false"
+                                 :messages="$store.state.transaction.message" type="danger"></alert-component>
+            </template>
+
+            <template v-slot:body="">
+                <div class="row">
+                    <div class="col-12">
+                        <input-component id="updateName" idHelp="updateNameHelp"
+                                         textHelp="Enter the brand name." title="Brand name"
+                                         type="text">
+                            <input id="updateName" v-model="$store.state.item.name" aria-describedby="updateNameHelp"
+                                   class="form-control" placeholder="Brand name" required type="text">
+                        </input-component>
+                    </div>
+                    <div class="col-12">
+                        <input-component id="updateImage" idHelp="updateImageHelp"
+                                         textHelp="Insert the brand image."
+                                         title="Brand image" type="file">
+                            <input id="updateImage" aria-describedby="updateImageHelp" class="form-control" required
+                                   type="file" @change="loadImage($event)">
+                        </input-component>
+                    </div>
+                </div>
+            </template>
+
+            <template v-slot:footer="">
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button" @click="removeMessage()">
+                    Close
+                </button>
+                <button class="btn btn-primary" type="button" @click="updateBrand()">Update</button>
+            </template>
+        </modal-component>
+
     </div>
 </template>
 
@@ -219,7 +260,7 @@ export default {
             },
             update: {
                 visible: true,
-                dataToggle: 'modal2',
+                dataToggle: 'modal',
                 dataTarget: '#modalUpdateBrand'
             },
             destroy: {
@@ -327,31 +368,8 @@ export default {
         },
 
         save() {
-            if (this.name === '' && this.image.length === 0) {
-                this.$store.state.transaction.status = false;
-                this.$store.state.transaction.message = [];
-                this.$store.state.transaction.message = {
-                    name: ['The name field is required.'],
-                    image: ['The image field is required.']
-                };
+            if (!this.verifyRequiredInputs())
                 return;
-            }
-            if (this.name === '') {
-                this.$store.state.transaction.status = false;
-                this.$store.state.transaction.message = [];
-                this.$store.state.transaction.message = {
-                    name: ['The name field is required.']
-                };
-                return;
-            }
-            if (this.image.length === 0) {
-                this.$store.state.transaction.status = false;
-                this.$store.state.transaction.message = [];
-                this.$store.state.transaction.message = {
-                    image: ['The image field is required.']
-                };
-                return;
-            }
 
             let formData = new FormData();
             formData.append('name', this.name);
@@ -384,6 +402,78 @@ export default {
                     this.$store.state.transaction.message = [];
                     this.$store.state.transaction.message.push(errors.response.data.errors);
                 });
+        },
+
+        updateBrand() {
+            this.name = this.$store.state.item.name;
+
+            if (!this.verifyRequiredInputs())
+                return;
+
+            const url = this.route_index_brand + '/' + this.$store.state.item.id;
+
+            const formData = new FormData();
+            formData.append('_method', 'PATCH');
+            formData.append('name', this.$store.state.item.name);
+            formData.append('image', this.image[0]);
+
+            const settings = {
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: this.token
+                }
+            };
+
+            axios.post(url, formData, settings)
+                .then(response => {
+                    this.$store.state.transaction.status = true;
+                    this.$store.state.transaction.message = [];
+                    this.$store.state.transaction.message.push(response.data.message);
+                    this.loadList();
+                    setTimeout(() => {
+                        $('#alert').css('display', 'none');
+                        $('#modalUpdateBrand').modal('hide');
+                        $('#updateName').val('');
+                        $('#updateImage').val([]);
+                    }, 3000);
+                })
+                .catch(errors => {
+                    this.$store.state.transaction.status = false;
+                    this.$store.state.transaction.message = [];
+                    if(errors.response.data.errors.image)
+                        this.$store.state.transaction.message.push(errors.response.data.errors.image);
+                    if(errors.response.data.errors.name)
+                        this.$store.state.transaction.message.push(errors.response.data.errors.name);
+                });
+        },
+
+        verifyRequiredInputs() {
+            if (this.name === '' && this.image.length === 0) {
+                this.$store.state.transaction.status = false;
+                this.$store.state.transaction.message = [];
+                this.$store.state.transaction.message = {
+                    name: ['The name field is required.'],
+                    image: ['The image field is required.']
+                };
+                return false;
+            }
+            if (this.name === '') {
+                this.$store.state.transaction.status = false;
+                this.$store.state.transaction.message = [];
+                this.$store.state.transaction.message = {
+                    name: ['The name field is required.']
+                };
+                return false;
+            }
+            if (this.image.length === 0) {
+                this.$store.state.transaction.status = false;
+                this.$store.state.transaction.message = [];
+                this.$store.state.transaction.message = {
+                    image: ['The image field is required.']
+                };
+                return false;
+            }
+            return true;
         },
 
         removeMessage() {
@@ -431,7 +521,6 @@ export default {
 </script>
 
 <style scoped>
-
 img.image {
     max-width: 120px;
     border-radius: 50%;

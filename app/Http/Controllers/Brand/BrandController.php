@@ -101,6 +101,7 @@ class BrandController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $brand = $this->model->all()->find($id);
+
         if ($brand === null) {
             return response()->json(['error' => 'This brand does not exist.'], Response::HTTP_NOT_FOUND);
         }
