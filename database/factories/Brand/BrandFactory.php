@@ -23,10 +23,21 @@ class BrandFactory extends Factory
      */
     public function definition(): array
     {
+        $image = $this->faker->randomElements([
+            'bmw.png',
+            'chevrolet.png',
+            'ford.png',
+            'honda.png',
+            'hyundai.png',
+            'kia.png',
+            'nissan.png',
+            'toyota.png',
+            'volkswagen.png'
+        ], 1, true);
 
         return [
             'name' => $this->faker->unique()->lastName,
-            'image' => $this->resizeImage()
+            'image' => $this->resizeImage($image[0])
         ];
     }
 
@@ -36,9 +47,9 @@ class BrandFactory extends Factory
      * @param string $random
      * @return string
      */
-    private function resizeImage(): string
+    private function resizeImage(string $random): string
     {
-        $image = public_path('images/default/') . 'ford.png';
+        $image = 'D:\Downloads\imagens_marcas\\' . "$random";
         $resize = Image::make($image)->resize(300, null, function ($constraint) {
             $constraint->aspectRatio();
         })->encode('png');
