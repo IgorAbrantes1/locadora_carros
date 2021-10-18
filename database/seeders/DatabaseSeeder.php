@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
+use Artisan;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,6 +19,7 @@ class DatabaseSeeder extends Seeder
         Storage::drive(config('filesystems.default'))->createDir('brands/images');
         Storage::drive(config('filesystems.default'))->deleteDirectory('carModels/images');
         Storage::drive(config('filesystems.default'))->createDir('carModels/images');
+	Artisan::call('storage:link');
 
         $this->call(UserSeeder::class);
 
