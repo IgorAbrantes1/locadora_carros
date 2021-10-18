@@ -6,6 +6,7 @@ use App\Models\Brand\Brand;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Hash;
 
 class BrandFactory extends Factory
 {
@@ -42,7 +43,7 @@ class BrandFactory extends Factory
             $constraint->aspectRatio();
         })->encode('png');
 
-        $hash = md5($resize->__toString());
+        $hash = Hash::make($resize->__toString());
         $image = 'brands/images/' . $hash . date('__Y_m_d_H_i_s') . '.png';
 
         Storage::disk(config('filesystems.default'))->put($image, $resize->__toString());
