@@ -59,7 +59,7 @@
         "storage-link": [
             "@composer install",
             "@php artisan storage:link"
-        ],
+        ]
     },
     "extra": {
         "laravel": {
